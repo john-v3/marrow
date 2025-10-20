@@ -11,8 +11,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,17 +31,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        Greeting(
-                            name = "safd",
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                    }
+                    Greeting(
+                        name = "android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
 
         checkAndRequestBluetoothPermission()
     }
+
+
 
     private val requestBluetoothConnectPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission())
@@ -49,7 +52,8 @@ class MainActivity : ComponentActivity() {
                 // Permission granted — safe to use Bluetooth
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                     == PackageManager.PERMISSION_GRANTED
-                ) {
+
+                    ) {
                     // Permission not granted — handle or request
                     if (ActivityCompat.checkSelfPermission(
                             this,
@@ -110,13 +114,40 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    Column {
+        Text(
+            text = "Hello $name!",
+            modifier = modifier
+        )
+        Text(
+            text = "Hello $name!",
+            modifier = modifier
+        )
+        Text(
+            text = "Hello $name!",
+            modifier = modifier
+        )
+        Text(
+            text = "Hello $name!",
+            modifier = modifier
+        )
+        Text(
+            text = "Hello $name!",
+            modifier = modifier
+        )
+
+        Button() {
+
+        }
+
+    }
 }
 
-@Preview(showBackground = true)
+fun TestOut() {
+
+}
+
+@Preview(showBackground = true, name = "test")
 @Composable
 fun GreetingPreview() {
     MyApplicationTheme {
