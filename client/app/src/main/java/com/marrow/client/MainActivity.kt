@@ -135,13 +135,28 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             text = "Hello $name!",
             modifier = modifier
         )
+        Button(onClick = {TestOut()},
+            enabled = true,
+            content = {ButtonType1()},
+        )
 
-        Button() {
-
+        for (t in v1Arr) {
+            Button(onClick = {TestOut()},
+                enabled = true,
+                content = {ButtonType1()},
+            )
         }
-
     }
 }
+
+@Composable
+fun ButtonType1() {
+    Text(
+        text = "test"
+    )
+}
+
+var v1Arr = arrayOf("test", "test3")
 
 fun TestOut() {
 
@@ -152,5 +167,25 @@ fun TestOut() {
 fun GreetingPreview() {
     MyApplicationTheme {
         Greeting("Android")
+    }
+}
+
+enum class CommandBehavior {NORMAL, TOGGLE}
+
+public class Command {
+    var incomingCommandBehavior : String = ""
+    var name : String = "default"
+    var index : Int = 0
+
+    @Composable
+    fun GenerateButton() {
+        Button(onClick = {TestOut()},
+            enabled = true,
+            content = {ButtonType1()},
+        )
+    }
+
+    fun SendSignal(command : String) {
+        // bluetooth stuff
     }
 }
