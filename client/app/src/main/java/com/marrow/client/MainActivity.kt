@@ -2,15 +2,23 @@ package com.marrow.client
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattServer
+import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,9 +33,18 @@ import androidx.core.content.ContextCompat
 import com.marrow.client.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // bluetooth permissions
+        checkAndRequestBluetoothPermission()
+
+        // contact the server
+
+
+        // main content
         setContent {
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -38,9 +55,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-        checkAndRequestBluetoothPermission()
     }
+
 
 
 
@@ -51,9 +67,7 @@ class MainActivity : ComponentActivity() {
             if (isGranted) {
                 // Permission granted — safe to use Bluetooth
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                    == PackageManager.PERMISSION_GRANTED
-
-                    ) {
+                    == PackageManager.PERMISSION_GRANTED) {
                     // Permission not granted — handle or request
                     if (ActivityCompat.checkSelfPermission(
                             this,
@@ -109,7 +123,6 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         }
     }
-
 }
 
 @Composable
