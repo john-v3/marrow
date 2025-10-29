@@ -21,6 +21,7 @@ func main() {
 
 	})	 
 
+	// if bluetooth device is not enabled
 	must("start scan", err)
 }
 
