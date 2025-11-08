@@ -11,11 +11,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 
-class SimpleBluetoothPermissionHandler constructor(private val appContext: Context) : ComponentActivity() {
+class SimpleBluetoothPermissionHandler constructor(
+    private val appContext: Context,
+    private val activity: MainActivity
+) : ComponentActivity() {
 
-    fun CheckAndRequestBluetoothPermission() {
+    fun checkAndRequestBluetoothPermission() {
 
         // check if permission is granted
         if (ContextCompat.checkSelfPermission(
@@ -50,8 +52,9 @@ class SimpleBluetoothPermissionHandler constructor(private val appContext: Conte
         }
     }
 
+
     private val requestBluetoothConnectPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission())
+        activity.registerForActivityResult(ActivityResultContracts.RequestPermission())
         { isGranted ->
 
             if (isGranted) {

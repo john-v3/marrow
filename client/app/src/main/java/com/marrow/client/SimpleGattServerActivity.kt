@@ -1,7 +1,6 @@
 package com.marrow.client
 
 import android.Manifest
-import android.R
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
@@ -10,14 +9,11 @@ import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.BluetoothLeAdvertiser
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.ParcelUuid
-import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import java.util.UUID
 
-class SimpleGattServerActivity constructor(private val context: Context) {
+class SimpleGattServerActivity constructor(private val context: Context, private val activity1: MainActivity) {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var gattServer: BluetoothGattServer? = null
@@ -69,8 +65,9 @@ class SimpleGattServerActivity constructor(private val context: Context) {
 
     fun Start() {
         // bluetooth permissions
-        val test = SimpleBluetoothPermissionHandler(context.applicationContext)
-        test.CheckAndRequestBluetoothPermission()
+
+        val test = SimpleBluetoothPermissionHandler(context.applicationContext, this.activity1)
+        test.checkAndRequestBluetoothPermission()
 
         bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager?.adapter

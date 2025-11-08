@@ -1,7 +1,6 @@
 package com.marrow.client
 
 import android.Manifest
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,7 +41,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        var test = SimpleGattServerActivity(this.applicationContext)
+        var test = SimpleGattServerActivity(this.applicationContext, this)
         test.Start()
     }
 }
