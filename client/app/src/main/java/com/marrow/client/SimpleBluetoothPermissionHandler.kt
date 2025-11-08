@@ -3,6 +3,7 @@ package com.marrow.client
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.widget.Toast
@@ -12,13 +13,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 
-class SimpleBluetoothPermissionHandler : ComponentActivity() {
+class SimpleBluetoothPermissionHandler constructor(private val appContext: Context) : ComponentActivity() {
 
-    public fun checkAndRequestBluetoothPermission() {
+    fun CheckAndRequestBluetoothPermission() {
 
         // check if permission is granted
         if (ContextCompat.checkSelfPermission(
-                this, // must be an activity context
+                this.appContext, // must be an activity context
                 Manifest.permission.BLUETOOTH_CONNECT
             ) == PackageManager.PERMISSION_GRANTED
         ) {
@@ -31,7 +32,7 @@ class SimpleBluetoothPermissionHandler : ComponentActivity() {
     }
 
     private fun enableBluetooth() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+        if (ActivityCompat.checkSelfPermission(this.appContext, Manifest.permission.BLUETOOTH_CONNECT)
             != PackageManager.PERMISSION_GRANTED
         ) {
             // Permission not granted — handle or request
@@ -40,7 +41,7 @@ class SimpleBluetoothPermissionHandler : ComponentActivity() {
         }
 
         // start the bluetooth service
-        val bluetoothManager = getSystemService(BluetoothManager::class.java)
+        val bluetoothManager = appContext.getSystemService(BluetoothManager::class.java)
         val bluetoothAdapter = bluetoothManager.adapter
 
         if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled) {

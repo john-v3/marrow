@@ -1,23 +1,11 @@
 package com.marrow.client
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattServer
-import android.bluetooth.BluetoothGattServerCallback
-import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,22 +16,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.marrow.client.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // bluetooth permissions
-        checkAndRequestBluetoothPermission()
-
-        // contact the server
 
 
+        // connect to server
+        //val gatt = SimpleGattServerActivity()
+        //gatt.onCreate()
         // main content
         setContent {
             MyApplicationTheme {
@@ -55,73 +41,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
 
-
-
-
-    private val requestBluetoothConnectPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission())
-        { isGranted ->
-
-            if (isGranted) {
-                // Permission granted — safe to use Bluetooth
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                    == PackageManager.PERMISSION_GRANTED) {
-                    // Permission not granted — handle or request
-                    if (ActivityCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.BLUETOOTH_CONNECT
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                    }
-                    enableBluetooth()
-                }
-            } else {
-                // Permission denied — show rationale or disable functionality
-                Toast.makeText(this, "Bluetooth permission denied",
-                    Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    private fun checkAndRequestBluetoothPermission() {
-
-        // check if permission is granted
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            // Permission not granted — handle or request
-            enableBluetooth()
-        } else {
-            // 3. Request the permission
-            requestBluetoothConnectPermission.launch(Manifest.permission.BLUETOOTH_CONNECT)
-        }
-    }
-
-    private fun enableBluetooth() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Permission not granted — handle or request
-            Toast.makeText(this, "Bluetooth permission not granted", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val bluetoothManager = getSystemService(BluetoothManager::class.java)
-        val bluetoothAdapter = bluetoothManager.adapter
-
-        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled) {
-            val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivity(intent)
-        }
+        var test = SimpleGattServerActivity(this.applicationContext)
+        test.Start()
     }
 }
 

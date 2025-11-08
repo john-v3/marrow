@@ -1,6 +1,7 @@
 package com.marrow.client
 
 import android.Manifest
+import android.R
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
@@ -16,7 +17,7 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import java.util.UUID
 
-class SimpleGattServerActivity : ComponentActivity() {
+class SimpleGattServerActivity constructor(private val context: Context) {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var gattServer: BluetoothGattServer? = null
@@ -66,33 +67,23 @@ class SimpleGattServerActivity : ComponentActivity() {
         }
     }
 
-    // Ask for runtime Bluetooth permissions
-    @SuppressLint("MissingPermission")
-    private val requestBluetoothPermission = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { result ->
-        if (result.all { it.value }) startGattServer()
-        else println("Bluetooth permissions denied.")
-    }
+    fun Start() {
+        // bluetooth permissions
+        val test = SimpleBluetoothPermissionHandler(context.applicationContext)
+        test.CheckAndRequestBluetoothPermission()
 
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
-    override fun onStart() {
-        super.onStart()
-        bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager?.adapter
         advertiser = bluetoothAdapter?.bluetoothLeAdvertiser
 
-        requestBluetoothPermission.launch(
-            arrayOf(
-                Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.BLUETOOTH_ADVERTISE
-            )
-        )
+
+        @SuppressLint("MissingPermission")
+        startGattServer()
     }
 
     @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT])
     private fun startGattServer() {
-        gattServer = bluetoothManager?.openGattServer(this, gattServerCallback)
+        gattServer = bluetoothManager?.openGattServer(this.context, gattServerCallback)
 
         val service = BluetoothGattService(
             serviceUUID,
@@ -109,7 +100,7 @@ class SimpleGattServerActivity : ComponentActivity() {
         gattServer?.addService(service)
 
         if (ActivityCompat.checkSelfPermission(
-                this,
+                this.context,
                 Manifest.permission.BLUETOOTH_ADVERTISE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -123,13 +114,14 @@ class SimpleGattServerActivity : ComponentActivity() {
     private fun startAdvertising() {
         val settings = AdvertiseSettings.Builder()
             .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+            .setDiscoverable(true)
             .setConnectable(true)
             .setTimeout(0)
             .build()
 
         val data = AdvertiseData.Builder()
             .setIncludeDeviceName(true)
-            .addServiceUuid(ParcelUuid(serviceUUID))
+            .addManufacturerData(0x004C, "TSM".toByteArray(Charsets.UTF_8))
             .build()
 
         advertiser?.startAdvertising(settings, data, object : AdvertiseCallback() {
@@ -144,13 +136,12 @@ class SimpleGattServerActivity : ComponentActivity() {
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADVERTISE)
-    override fun onDestroy() {
-        super.onDestroy()
+    fun onDestroy() {
         advertiser?.stopAdvertising(object : AdvertiseCallback() {})
 
         // check permissions
         if (ActivityCompat.checkSelfPermission(
-                this,
+                this.context,
                 Manifest.permission.BLUETOOTH_CONNECT
             ) != PackageManager.PERMISSION_GRANTED
         ) {
