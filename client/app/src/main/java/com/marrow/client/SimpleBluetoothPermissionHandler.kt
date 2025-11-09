@@ -31,6 +31,14 @@ class SimpleBluetoothPermissionHandler constructor(
             // 3. Request the permission
             requestBluetoothConnectPermission.launch(Manifest.permission.BLUETOOTH_CONNECT)
         }
+
+        if (ContextCompat.checkSelfPermission(
+                this.appContext,
+                Manifest.permission.BLUETOOTH_ADVERTISE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestBluetoothConnectPermission.launch(Manifest.permission.BLUETOOTH_ADVERTISE)
+        }
     }
 
     private fun enableBluetooth() {
@@ -52,38 +60,30 @@ class SimpleBluetoothPermissionHandler constructor(
         }
     }
 
-
     private val requestBluetoothConnectPermission =
         activity.registerForActivityResult(ActivityResultContracts.RequestPermission())
-        { isGranted ->
+    { isGranted ->
 
-            if (isGranted) {
-                // Permission granted — safe to use Bluetooth
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                    == PackageManager.PERMISSION_GRANTED) {
-                    // Permission not granted — handle or request
-                    if (ActivityCompat.checkSelfPermission(
-                            this,
-                            Manifest.permission.BLUETOOTH_CONNECT
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                    }
-                    enableBluetooth()
+        if (isGranted) {
+            // Permission granted — safe to use Bluetooth
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                == PackageManager.PERMISSION_GRANTED) {
+                // Permission not granted — handle or request
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+
                 }
-            } else {
-                // Permission denied — show rationale or disable functionality
-                Toast.makeText(this, "Bluetooth permission denied",
-                    Toast.LENGTH_SHORT).show()
+                enableBluetooth()
             }
+        } else {
+            // Permission denied — show rationale or disable functionality
+            Toast.makeText(this, "Bluetooth permission denied",
+                Toast.LENGTH_SHORT).show()
         }
-
+    }
 
 }
 

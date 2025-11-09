@@ -78,7 +78,7 @@ class SimpleGattServerActivity constructor(private val context: Context, private
         startGattServer()
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT])
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADVERTISE])
     private fun startGattServer() {
         gattServer = bluetoothManager?.openGattServer(this.context, gattServerCallback)
 
@@ -95,14 +95,6 @@ class SimpleGattServerActivity constructor(private val context: Context, private
 
         service.addCharacteristic(characteristic)
         gattServer?.addService(service)
-
-        if (ActivityCompat.checkSelfPermission(
-                this.context,
-                Manifest.permission.BLUETOOTH_ADVERTISE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
 
         startAdvertising()
     }
