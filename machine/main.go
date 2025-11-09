@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	logger "john-v3/Logger"
+	"log"
+	"os"
+	"time"
 
 	"tinygo.org/x/bluetooth"
 )
@@ -16,22 +20,65 @@ func main() {
 
 	// Start scanning.
 	println("scanning...")
-	err := adapter.Scan(func(adapter *bluetooth.Adapter, device bluetooth.ScanResult) {
 
-		
-		key := fmt.Sprint(device.Address.String(), " ", device.LocalName())
+	LogFile, err := os.Create("./log.txt")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	test := logger.JcLogger{
+		LogMode:   logger.Overwrite,
+		LogObject: LogFile,
+	}
+
+	err = adapter.Scan(func(adapter *bluetooth.Adapter, device bluetooth.ScanResult) {
+		key := fmt.Sprint(device.Address.String(), " ", device.LocalName(), " ", device.AdvertisementPayload)
+		p := device.AdvertisementPayload
+
 		tracker[key] = device.RSSI
 
-		fmt.Println("----------------------------------")
-		for i, n := range tracker {
-			fmt.Println(n, " ", i)
+		if len(p.ManufacturerData()) == 0 {
+			return
 		}
-		fmt.Println("----------------------------------")
+
+ 		// fmt.Println("Manufacturer data:", p.ManufacturerData()[0].CompanyID)
+
+		if p.ManufacturerData()[0].CompanyID != 11  {
+			return
+		}
+
+		message := ""
+		tm := time.Now().UTC()
+		message += fmt.Sprintln("----------------------------------")
+		message += fmt.Sprintln(tm)
+		message += fmt.Sprintln("----------------------------------")
+
+		fmt.Println("Manufacturer data:", p.ManufacturerData())
+		fmt.Println("Service data:", p.ServiceData())
+		fmt.Println("Local name:", device.LocalName())
+		// fmt.Println("raw:", device.ServiceData())
+		fmt.Println("MAC:", device.Address.MAC)
+		fmt.Println("Random?:", device.Address.IsRandom())
+		fmt.Println("raw:", len(device.AdvertisementPayload.Bytes()))
+
+		fmt.Println(message)
+		test.Write(message)
+		// time.Sleep(time.Second)
+
+		// for k := range tracker {
+		// 	delete(tracker, k)
+		// }
 
 	})
 
-	// if bluetooth device is not enabled
+	LogFile.Close()
+
 	must("start scan", err)
+}
+
+func SaveResult() {
+
 }
 
 func must(action string, err error) {
@@ -39,4 +86,3 @@ func must(action string, err error) {
 		panic("failed to " + action + ": " + err.Error())
 	}
 }
-
