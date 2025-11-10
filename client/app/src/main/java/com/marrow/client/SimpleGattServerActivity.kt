@@ -9,6 +9,7 @@ import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.BluetoothLeAdvertiser
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.ParcelUuid
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import java.util.UUID
@@ -104,13 +105,13 @@ class SimpleGattServerActivity constructor(private val context: Context, private
         val settings = AdvertiseSettings.Builder()
             .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
             .setDiscoverable(true)
-            .setConnectable(true)
+            .setConnectable(false)
             .setTimeout(0)
             .build()
 
         val data = AdvertiseData.Builder()
-            .setIncludeDeviceName(true)
-            .addManufacturerData(0x004C, "TSM".toByteArray(Charsets.UTF_8))
+            .setIncludeDeviceName(false)
+            .addManufacturerData(11, "123456789123456789123456789".toByteArray(Charsets.UTF_8))
             .build()
 
         advertiser?.startAdvertising(settings, data, object : AdvertiseCallback() {
