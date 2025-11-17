@@ -35,9 +35,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        var test = SimpleGattServerActivity(this.applicationContext, this)
+        val test = SimpleGattServerActivity(this.applicationContext, this)
         test.Start()
     }
+}
+
+private fun OnCommandListAcquired() {
+
 }
 
 @Composable
@@ -117,3 +121,5 @@ public class Command {
         // bluetooth stuff
     }
 }
+
+

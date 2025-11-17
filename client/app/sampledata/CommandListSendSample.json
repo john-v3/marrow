@@ -1,0 +1,7 @@
+[
+  {"CommandBehavior": "button", "name": "sample1", "index": 0},
+  {"CommandBehavior": "toggle", "name": "sample2", "index": 0},
+  {"CommandBehavior": "button", "name": "sample 3", "index": 0},
+  {"CommandBehavior": "button", "name": "sample 4", "index": 0},
+  {"CommandBehavior": "button", "name": "sample 5", "index": 0}
+]

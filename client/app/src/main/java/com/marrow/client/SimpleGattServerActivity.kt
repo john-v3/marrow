@@ -1,6 +1,7 @@
 package com.marrow.client
 
 import android.Manifest
+import android.R
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
@@ -14,7 +15,9 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import java.util.UUID
 
-class SimpleGattServerActivity constructor(private val context: Context, private val activity1: MainActivity) {
+class SimpleGattServerActivity
+    (private val context: Context, private val activity1: MainActivity, private val OnCommandsReceived: Function)
+{
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var gattServer: BluetoothGattServer? = null
