@@ -16,7 +16,7 @@ import androidx.core.app.ActivityCompat
 import java.util.UUID
 
 class SimpleGattServerActivity
-    (private val context: Context, private val activity1: MainActivity, private val OnCommandsReceived: Function)
+    (private val context: Context, private val activity1: MainActivity)
 {
     private var bluetoothManager: BluetoothManager? = null
     private var bluetoothAdapter: BluetoothAdapter? = null

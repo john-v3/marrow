@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
 
         val test = SimpleGattServerActivity(this.applicationContext, this)
         test.Start()
+
     }
 }
 
@@ -46,6 +47,9 @@ private fun OnCommandListAcquired() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
+
+    val test = GetSamplePayload()
+
     Column {
         Text(
             text = "Hello $name!",
@@ -55,28 +59,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             text = "Hello $name!",
             modifier = modifier
         )
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
-        )
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
-        )
-        Text(
-            text = "Hello $name!",
-            modifier = modifier
-        )
-        Button(onClick = {TestOut()},
-            enabled = true,
-            content = {ButtonType1()},
-        )
 
-        for (t in v1Arr) {
-            Button(onClick = {TestOut()},
-                enabled = true,
-                content = {ButtonType1()},
-            )
+        for (t in test) {
+            t.GenerateButton()
         }
     }
 }
@@ -102,18 +87,35 @@ fun GreetingPreview() {
     }
 }
 
-enum class CommandBehavior {NORMAL, TOGGLE}
+private fun GetSamplePayload(): Array<Command> {
+    val payload = arrayOf(
+        Command(0, "test", 0),
+        Command(0, "test2", 1),
+    )
 
-public class Command {
-    var incomingCommandBehavior : String = ""
-    var name : String = "default"
-    var index : Int = 0
+    return payload
+}
+
+enum class CommandTypes(val value: Int) {
+    PRESS(0),
+    TOGGLE(1);
+
+    companion object {
+        fun fromInt(value: Int) = CommandTypes.entries.first { it.value == value }
+    }
+}
+
+public class Command (incomingBehavior: Int = 0, name: String = "default", index: Int = 0)
+{
+    var incomingCommandBehavior : CommandTypes = CommandTypes.fromInt(incomingBehavior)
+    var name : String = name
+    var index : Int = index
 
     @Composable
     fun GenerateButton() {
         Button(onClick = {TestOut()},
             enabled = true,
-            content = {ButtonType1()},
+            content = {Text( text = name)},
         )
     }
 
@@ -121,5 +123,6 @@ public class Command {
         // bluetooth stuff
     }
 }
+
 
 
