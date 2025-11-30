@@ -35,14 +35,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val test = SimpleGattServerActivity(this.applicationContext, this)
+        val test = SimpleGattServerAdvertising(this.applicationContext, this)
         test.Start()
 
     }
-}
-
-private fun OnCommandListAcquired() {
-
 }
 
 @Composable
@@ -73,12 +69,6 @@ fun ButtonType1() {
     )
 }
 
-var v1Arr = arrayOf("test", "test3")
-
-fun TestOut() {
-
-}
-
 @Preview(showBackground = true, name = "test")
 @Composable
 fun GreetingPreview() {
@@ -105,22 +95,24 @@ enum class CommandTypes(val value: Int) {
     }
 }
 
-public class Command (incomingBehavior: Int = 0, name: String = "default", index: Int = 0)
+public class Command (incomingBehavior: Int = 0,
+                      val name: String = "default",
+                      var index: Int = 0)
 {
     var incomingCommandBehavior : CommandTypes = CommandTypes.fromInt(incomingBehavior)
-    var name : String = name
-    var index : Int = index
 
     @Composable
     fun GenerateButton() {
-        Button(onClick = {TestOut()},
+        Button(onClick = {this.SendSignal(index)},
             enabled = true,
             content = {Text( text = name)},
         )
     }
 
-    fun SendSignal(command : String) {
-        // bluetooth stuff
+    // There should be
+    fun SendSignal(command : Int) {
+        // perform any effects,
+        // there should be something
     }
 }
 

@@ -1,7 +1,6 @@
 package com.marrow.client
 
 import android.Manifest
-import android.R
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.bluetooth.le.AdvertiseCallback
@@ -10,12 +9,11 @@ import android.bluetooth.le.AdvertiseSettings
 import android.bluetooth.le.BluetoothLeAdvertiser
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.ParcelUuid
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import java.util.UUID
 
-class SimpleGattServerActivity
+class SimpleGattServerAdvertising
     (private val context: Context, private val activity1: MainActivity)
 {
     private var bluetoothManager: BluetoothManager? = null
