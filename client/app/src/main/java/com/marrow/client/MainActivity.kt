@@ -38,6 +38,8 @@ class MainActivity : ComponentActivity() {
         val test = SimpleGattServerAdvertising(this.applicationContext, this)
         test.Start()
 
+        val test2 = SimpleBLEScanner(this.applicationContext, this)
+        test2.StartScanning()
     }
 }
 
