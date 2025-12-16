@@ -1,6 +1,7 @@
 package com.marrow.client
 
 import android.Manifest
+import android.R
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
@@ -13,8 +14,18 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import java.util.Dictionary
 
-class SimpleBLEScanner (private var context: Context, private var activity1: MainActivity)
+class SimpleBLEScanner (
+    private var context: Context,
+    private var activity1: MainActivity,
+    private var DeviceListViewModel1: DeviceListViewModel
+)
 {
     private var Scanner : BluetoothLeScanner? = null
     private var BluetoothManager : BluetoothManager? = null
@@ -43,7 +54,10 @@ class SimpleBLEScanner (private var context: Context, private var activity1: Mai
 
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            Log.w("BluetoothBLEScanning", "scan result received ${result?.scanRecord?.deviceName}")
+            Log.w("BluetoothBLEScanning", "scan result received name: ${result?.scanRecord?.deviceName} " +
+                    "date: ${result?.scanRecord?.manufacturerSpecificData}" +
+                    "---------------------------------")
+            result?.scanRecord?.deviceName?.let { DeviceListViewModel1.addDevice(it) }
         }
     }
 
@@ -93,4 +107,35 @@ class SimpleBLEScanner (private var context: Context, private var activity1: Mai
                     Toast.LENGTH_SHORT).show()
             }
         }
+}
+
+
+data class DeviceUiState(
+    // contains a list of all the different devices that were in range
+    // should be updated every time we process a bluetooth reading
+    val scanRecords : MutableList<String> = MutableList<String>(0) { index -> ""}
+ )
+
+
+class DeviceListViewModel : ViewModel() {
+
+    // private accessed data
+    private val DeviceList = MutableStateFlow(DeviceUiState())
+
+    // publicly avaiable
+    val uiState: StateFlow<DeviceUiState> = DeviceList.asStateFlow()
+
+    // business logic down here
+    fun addDevice(newDevice: String) {
+        DeviceList.update { currentState ->
+            currentState.scanRecords.add(newDevice)
+            if (currentState.scanRecords.count() > 50) {
+                currentState.scanRecords.removeLast()
+            }
+            return
+        }
+
+        // doesn't llook like we can emit right here
+        // return DeviceList.emit(newDevice)
+    }
 }

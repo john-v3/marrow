@@ -1,6 +1,7 @@
 package com.marrow.client
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.marrow.client.ui.theme.MyApplicationTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 class MainActivity : ComponentActivity() {
 
@@ -25,12 +30,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+            val DeviceListViewModel1 = DeviceListViewModel()
+            val test by DeviceListViewModel1.uiState.collectAsStateWithLifecycle()
+
+            val test2 = SimpleBLEScanner(this.applicationContext, this, DeviceListViewModel1)
+
+            @SuppressLint("MissingPermission")
+            test2.StartScanning()
+
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Column(modifier = Modifier.padding(innerPadding)) {
+                        Text(text = "TEST")
+                        test.scanRecords.forEach { name ->
+                            Text(text = name)
+                        }
+
+                    }
+
                 }
             }
         }
@@ -38,8 +55,9 @@ class MainActivity : ComponentActivity() {
         val test = SimpleGattServerAdvertising(this.applicationContext, this)
         test.Start()
 
-        val test2 = SimpleBLEScanner(this.applicationContext, this)
-        test2.StartScanning()
+
+
+
     }
 }
 
