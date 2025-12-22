@@ -17,9 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.marrow.client.ui.theme.MyApplicationTheme
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 class MainActivity : ComponentActivity() {
@@ -29,11 +27,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        setContent {
-            val DeviceListViewModel1 = DeviceListViewModel()
-            val test by DeviceListViewModel1.uiState.collectAsStateWithLifecycle()
+        val DeviceListViewModel1 = DeviceListViewModel()
 
-            val test2 = SimpleBLEScanner(this.applicationContext, this, DeviceListViewModel1)
+        val test2 = SimpleBLEScanner(this.applicationContext, this, DeviceListViewModel1)
+
+        setContent {
 
             @SuppressLint("MissingPermission")
             test2.StartScanning()
@@ -54,9 +52,6 @@ class MainActivity : ComponentActivity() {
 
         val test = SimpleGattServerAdvertising(this.applicationContext, this)
         test.Start()
-
-
-
 
     }
 }
