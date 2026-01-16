@@ -31,19 +31,14 @@ class MainActivity : ComponentActivity() {
 
         val test2 = SimpleBLEScanner(this.applicationContext, this, DeviceListViewModel1)
 
+        @SuppressLint("MissingPermission")
+        test2.StartScanning()
+
         setContent {
-
-            @SuppressLint("MissingPermission")
-            test2.StartScanning()
-
             MyApplicationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
                         Text(text = "TEST")
-                        test.scanRecords.forEach { name ->
-                            Text(text = name)
-                        }
-
                     }
 
                 }

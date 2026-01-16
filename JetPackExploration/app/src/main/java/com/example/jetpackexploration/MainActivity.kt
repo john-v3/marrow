@@ -30,6 +30,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.jetpackexploration.ui.theme.JetPackExplorationTheme
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+
+import androidx.compose.ui.unit.coerceAtLeast
 
 
 class MainActivity : ComponentActivity() {
@@ -54,9 +63,15 @@ class MainActivity : ComponentActivity() {
 // this require something
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    val expanded = remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
 
     Surface(
             color = MaterialTheme.colorScheme.primary,
@@ -64,14 +79,16 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         )
     {
         Row(modifier = Modifier.padding(24.dp)) {
-            Column(modifier = Modifier.weight(1f).padding(bottom = extraPadding)) {
-                Text(text = "Hello ")
-                Text(text = name)
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(bottom = extraPadding.coerceAtLeast(0.dp))) {
+                Text(text = "Hello, ")
+                Text(text = name, style = MaterialTheme.typography.headlineMedium)
             }
             ElevatedButton(
-                onClick = { expanded.value = !expanded.value }
+                onClick = { expanded = !expanded }
             ) {
-                Text(if (expanded.value) "Show less" else "Show more")
+                Text(if (expanded) "Show less" else "Show more")
             }
         }
     }

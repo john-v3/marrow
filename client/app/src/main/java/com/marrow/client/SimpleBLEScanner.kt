@@ -113,7 +113,7 @@ class SimpleBLEScanner (
 data class DeviceUiState(
     // contains a list of all the different devices that were in range
     // should be updated every time we process a bluetooth reading
-    val scanRecords : MutableList<String> = MutableList<String>(0) { index -> ""}
+    val scanRecords : List<String> = emptyList()
  )
 
 
