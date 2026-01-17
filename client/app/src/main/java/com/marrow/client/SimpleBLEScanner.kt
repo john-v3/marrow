@@ -113,7 +113,7 @@ class SimpleBLEScanner (
 data class DeviceUiState(
     // contains a list of all the different devices that were in range
     // should be updated every time we process a bluetooth reading
-    val scanRecords : List<String> = emptyList()
+    val scanRecords : Set<String> = emptySet()
  )
 
 
@@ -122,20 +122,17 @@ class DeviceListViewModel : ViewModel() {
     // private accessed data
     private val DeviceList = MutableStateFlow(DeviceUiState())
 
-    // publicly avaiable
+    // publicly available
     val uiState: StateFlow<DeviceUiState> = DeviceList.asStateFlow()
 
     // business logic down here
     fun addDevice(newDevice: String) {
-        DeviceList.update { currentState ->
-            currentState.scanRecords.add(newDevice)
-            if (currentState.scanRecords.count() > 50) {
-                currentState.scanRecords.removeLast()
-            }
-            return
+        DeviceList.update { current ->
+            val updated = (current.scanRecords + newDevice)
+                .toList()
+                .takeLast(50)
+                .toSet()
+            current.copy(scanRecords = updated)
         }
-
-        // doesn't llook like we can emit right here
-        // return DeviceList.emit(newDevice)
     }
 }

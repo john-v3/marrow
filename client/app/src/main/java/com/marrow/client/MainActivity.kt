@@ -7,18 +7,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresPermission
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.marrow.client.ui.theme.MyApplicationTheme
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.marrow.client.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -27,27 +29,40 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val DeviceListViewModel1 = DeviceListViewModel()
+        // instantiate a view model
+        val deviceListViewModel1 = DeviceListViewModel()
 
-        val test2 = SimpleBLEScanner(this.applicationContext, this, DeviceListViewModel1)
+        // create the bluetooth scanner to listen for data
+        val test2 = SimpleBLEScanner(this.applicationContext, this, deviceListViewModel1)
 
+        // start scanning for data
         @SuppressLint("MissingPermission")
         test2.StartScanning()
 
+        // display visual component
         setContent {
             MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
-                        Text(text = "TEST")
-                    }
-
-                }
+                    BtDisplay(deviceListViewModel1, Modifier.fillMaxSize())
             }
         }
 
         val test = SimpleGattServerAdvertising(this.applicationContext, this)
         test.Start()
 
+    }
+}
+
+@Composable
+fun BtDisplay(viewModel: DeviceListViewModel, modifier: Modifier) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LazyColumn(modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        items(uiState.scanRecords.toList()) {
+            device -> Text(device)
+        }
     }
 }
 
