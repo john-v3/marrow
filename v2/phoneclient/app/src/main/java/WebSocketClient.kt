@@ -1,26 +1,29 @@
+import android.util.Log
+import org.java_websocket.WebSocket
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ClientHandshake
+import org.java_websocket.handshake.ServerHandshake
+import java.lang.Exception
+import java.net.InetSocketAddress
+import java.net.URI
 
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
-
-
-class WebSocketClient {
-    val url = "wss://test.com/raw"
-    val client = OkHttpClient()
-    fun start() {
-        val request = Request.Builder().url(url).build()
-
-
-        val socket = client.newWebSocket(request, WebSocketListener())
-
-
-
-
+class WebSocketClient(address: URI) : WebSocketClient(address) {
+    override fun onOpen(handshakedata: ServerHandshake?) {
+        println("Connected to server")
     }
 
-    // send data to web socket
-    // receive data from web socket
+    override fun onMessage(message: String?) {
+        println("Message from server: $message")
+    }
+
+    override fun onClose(code: Int, reason: String?, remote: Boolean) {
+        println("Disconnected from server: $reason")
+    }
+
+    override fun onError(ex: Exception?) {
+        ex?.printStackTrace()
+    }
+
 }
+
+

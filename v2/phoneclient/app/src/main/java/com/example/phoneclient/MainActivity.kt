@@ -1,5 +1,6 @@
 package com.example.phoneclient
 
+import WebSocketClient
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,10 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.phoneclient.ui.theme.PhoneclientTheme
+import java.net.URI
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             PhoneclientTheme {
@@ -26,6 +29,15 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+
+        val uri = URI.create("ws://192.168.0.2:8080/echo")
+        val test = WebSocketClient(uri)
+        test.connect()
+
+        Thread.sleep(1000)
+        if (test.isOpen) {
+            test.send("test")
         }
     }
 }
