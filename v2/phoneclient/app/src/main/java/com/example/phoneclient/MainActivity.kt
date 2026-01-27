@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val uri = URI.create("ws://192.168.0.2:8080/echo")
+        val uri = URI.create("ws://10.249.150.125:8080/echo")
         val test = WebSocketClient(uri)
         test.connect()
 
