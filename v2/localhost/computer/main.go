@@ -1,23 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net"
+	"john-v3/marrowv2-primary/userinterface"
+	"john-v3/marrowv2-primary/utilities"
 )
 
 func main() {
-	fmt.Println("test")
-	fmt.Println(GetOutBoundIP())
+	netStr := utilities.GetOutBoundIP().String()
+	userinterface.GenerateQRCodePopup(netStr)
+
+	// start up the websocket
+	utilities.InstantiateWebServer(netStr, "8080")
+
 }
-
-func GetOutBoundIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil { log.Fatal(err) }
-	defer conn.Close()
-
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP
-}
-
