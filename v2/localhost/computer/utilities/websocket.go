@@ -41,7 +41,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 func InstantiateWebServer(BaseAddress string, Port string) {
 	ipTarget := GetOutBoundIP().String()
 
-	fmt.Println("Running...")
+	fmt.Println("Running web socket...")
 	flag.Parse()
 	log.SetFlags(0)
 	http.HandleFunc("/", home)
