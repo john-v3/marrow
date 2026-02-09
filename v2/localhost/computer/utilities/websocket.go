@@ -10,6 +10,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type button struct {
+	Name string `json:"Name"`
+	Category string `json:"DataType"`
+	CurrentValue string `json:"Value"`
+}
+
+type event struct {
+	Name string `json:"Name"`
+	Value string `json:"Value"`
+}
+
 var upgrader = websocket.Upgrader{}
 
 func echo(w http.ResponseWriter, r *http.Request) {
