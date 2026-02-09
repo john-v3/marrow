@@ -14,6 +14,8 @@ okhttpVersion = "5.3.0"
 squareupOkhttp = "5.0.0-alpha.16"
 squareupOkhttpVersion = "5.0.0-alpha.16"
 appcompat = "1.7.1"
+quickieBundled = "1.11.0"
+composeThemeAdapter = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +38,8 @@ okhttp-v530 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpVer
 okhttp3-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version = "5.3.2" }
 squareup-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+quickie-bundled = { group = "io.github.g00fy2.quickie", name = "quickie-bundled", version.ref = "quickieBundled" }
+compose-theme-adapter = { group = "com.google.android.material", name = "compose-theme-adapter", version.ref = "composeThemeAdapter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

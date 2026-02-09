@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.java.websocket)
     implementation(libs.androidx.appcompat)
+    implementation(libs.quickie.bundled)
+    implementation(libs.compose.theme.adapter)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
