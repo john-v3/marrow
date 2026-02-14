@@ -1,23 +1,23 @@
 package utilities
 
 import (
-	"flag"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
 type button struct {
-	Name string `json:"Name"`
-	Category string `json:"DataType"`
+	Name         string `json:"Name"`
+	Category     string `json:"DataType"`
 	CurrentValue string `json:"Value"`
 }
 
 type event struct {
-	Name string `json:"Name"`
+	Name  string `json:"Name"`
 	Value string `json:"Value"`
 }
 
@@ -49,17 +49,42 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func InstantiateWebServer(BaseAddress string, Port string) {
-	ipTarget := GetOutBoundIP().String()
+func formHttpServer(BaseAddress string, Port string, wg *sync.WaitGroup) *http.Server {
 
-	fmt.Println("Running web socket...")
-	flag.Parse()
-	log.SetFlags(0)
+	srv := &http.Server{Addr: BaseAddress + ":" + Port}
 	http.HandleFunc("/", home)
 	http.HandleFunc("/echo", echo)
-	addr := flag.String("addr", ipTarget+ ":" + Port, "http service address")
 
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	fmt.Println("Starting Server on " + BaseAddress + ":" + Port)
+	go func() {
+		defer wg.Done()
+
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("ListenAndServe(): %v", err)
+		}
+	}()
+
+	return srv
+}
+
+func InstantiateWebServer(BaseAddress string, Port string, httpServerExitDone *sync.WaitGroup) (*sync.WaitGroup, *http.Server) {
+
+	httpServerExitDone.Add(1)
+	server := formHttpServer(BaseAddress, Port, httpServerExitDone)
+
+	// now close the server gracefully ("shutdown")
+	// timeout could be given with a proper context
+	// (in real world you shouldn't use TODO()).
+	// if err := server.Shutdown(context.TODO()); err != nil {
+	// 	panic(err) // failure/timeout shutting down the server gracefully
+	// }
+
+	// wait for goroutine started in startHttpServer() to stop
+	// NOTE: as @sander points out in comments, this might be unnecessary.
+
+	log.Println("server instantiated.")
+
+	return httpServerExitDone, server
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -145,3 +170,5 @@ You can change the message and send multiple times.
 </body>
 </html>
 `))
+
+

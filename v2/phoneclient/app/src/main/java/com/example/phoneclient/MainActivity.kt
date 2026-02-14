@@ -1,31 +1,22 @@
 package com.example.phoneclient
 
 import WebSocketClient
-import android.bluetooth.le.ScanSettings
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.util.LogPrinter
-import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,88 +27,140 @@ import io.github.g00fy2.quickie.QRResult.QRMissingPermission
 import io.github.g00fy2.quickie.QRResult.QRSuccess
 import io.github.g00fy2.quickie.QRResult.QRUserCanceled
 import io.github.g00fy2.quickie.ScanQRCode
-import io.github.g00fy2.quickie.config.BarcodeFormat
+import java.net.URI
+
 
 class MainActivity : ComponentActivity() {
 
-    // private lateinit var scanQRCodeLauncher: ManagedActivityResultLauncher<Nothing?, QRResult>
-    private var selectedBarcodeFormat = BarcodeFormat.FORMAT_ALL_FORMATS
+    lateinit var webSocketClient: WebSocketClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             PhoneclientTheme {
-                val test = remember { mutableStateOf("") }
+                val receivedValue = remember { mutableStateOf("") }
+                val parsedValue = remember { mutableStateOf<URI?>(null) }
 
                 Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                        Greeting(test.value)
-                        ButtonBeginScan(modifier = Modifier, resultAction = { input: String -> test.value = input  } )
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                )
+                {
+                    InfoField(receivedValue.value)
+                    ButtonBeginScan(
+                        modifier = Modifier,
+                        resultAction = { input: String ->
+                            receivedValue.value = input
+                            parsedValue.value = tryBuildingURI(input)
+                        }
+                    )
 
+                    if (parsedValue.value != null) {
+                        ButtonBeginWebSocketConnection(parsedValue) {
+                            uRI ->
+                            val result = beginWebSocketConnection(uRI)
+                            if (result != null)
+                            {
+                                webSocketClient = result
+                            }
+                        }
                     }
+                }
             }
         }
 
-//        val uri = URI.create("ws://10.249.150.125:8080/echo")
-//        val test = WebSocketClient(uri)
-//        test.connect()
-//
-//        Thread.sleep(1000)
-//        if (test.isOpen) {
-//            test.send("test")
-//        }
-    }
-
-
-     public fun ShowSnackbar(result: QRResult): String {
-        val text = when (result) {
-            is QRSuccess -> {
-                result.content.rawValue
-                // decoding with default UTF-8 charset when rawValue is null will not result in meaningful output, demo purpose
-                    ?: result.content.rawBytes?.let { String(it) }.orEmpty()
-            }
-            QRUserCanceled -> "User canceled"
-            QRMissingPermission -> "Missing permission"
-            is QRError -> "${result.exception.javaClass.simpleName}: ${result.exception.localizedMessage}"
-        }
-
-        Log.w("QRCodeResult", text)
-        Log.w("QRCodeResult", "test test 123")
-        return text
-    }
-
-
-    @Composable
-    fun ButtonBeginScan(modifier : Modifier = Modifier, resultAction:(input: String) -> Unit) {
-
-        val scanQRCodeLauncher = rememberLauncherForActivityResult(ScanQRCode()) {
-            result: QRResult ->
-                Log.e("RESULT", "Received value from QR Code Scan")
-                resultAction(ShowSnackbar(result))
-        }
-
-        Button(onClick = { scanQRCodeLauncher.launch(null)}) {
-            Text("Scan QR Code")
-            Text("test")
-        }
-    }
-
-
-    @Preview(showBackground = true)
-    @Composable
-    fun ButtonBeginScanPreview() {
-        PhoneclientTheme {
-            ButtonBeginScan(modifier = Modifier, {})
-        }
     }
 
 }
 
+fun tryBuildingURI(iPAddress: String): URI? {
+    return URI.create("ws://$iPAddress:8080/echo")
+}
+
+fun beginWebSocketConnection(URI: URI): WebSocketClient? {
+    val test = WebSocketClient(URI)
+
+    test.connectBlocking()
+
+    if (test.isOpen) {
+        test.send("test")
+        return test
+    } else {
+        return null
+    }
+}
+
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun ButtonBeginScan(modifier : Modifier = Modifier,resultAction:(input: String) -> Unit) {
+
+    val scanQRCodeLauncher = rememberLauncherForActivityResult(ScanQRCode()) {
+            result: QRResult ->
+        Log.e("RESULT", "Received value from QR Code Scan")
+        resultAction(showSnackbar(result))
+    }
+
+    Button(onClick = { scanQRCodeLauncher.launch(null)}) {
+        Text("Scan QR Code")
+    }
+}
+
+@Composable
+fun ButtonBeginWebSocketConnection(uri: MutableState<URI?>, resultAction: (input: URI) -> Unit) {
+    if (uri.value != null) {
+        Button(onClick = { resultAction(uri.value!!) }) {
+            Text("Begin Connection")
+        }
+    }
+}
+
+@SuppressLint("UnrememberedMutableState")
+@Preview(showBackground = true)
+@Composable
+fun ButtonBeginWebSocketConnectionPreviewNoValue() {
+    PhoneclientTheme {
+        ButtonBeginWebSocketConnection(mutableStateOf<URI?>(null)) {}
+    }
+}
+
+@SuppressLint("UnrememberedMutableState")
+@Preview(showBackground = true)
+@Composable
+fun ButtonBeginWebSocketConnectionPreviewValue() {
+    PhoneclientTheme {
+        ButtonBeginWebSocketConnection(mutableStateOf<URI?>(URI.create("test"))) {}
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun ButtonBeginScanPreview() {
+    PhoneclientTheme {
+        ButtonBeginScan(modifier = Modifier, {})
+    }
+}
+
+
+fun showSnackbar(result: QRResult): String {
+
+    val text = when (result) {
+        is QRSuccess -> {
+            result.content.rawValue
+            // decoding with default UTF-8 charset when rawValue is null will not result in meaningful output, demo purpose
+                ?: result.content.rawBytes?.let { String(it) }.orEmpty()
+        }
+        QRUserCanceled -> "User canceled"
+        QRMissingPermission -> "Missing permission"
+        is QRError -> "${result.exception.javaClass.simpleName}: ${result.exception.localizedMessage}"
+    }
+
+    return text
+}
+
+@Composable
+fun InfoField(name: String, modifier: Modifier = Modifier) {
     if (name == "")
     {
         Text(
@@ -130,14 +173,21 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             modifier = modifier
         )
     }
-
 }
 
-@Preview(showBackground = true, name = "test")
+@Preview(showBackground = true, name = "Info with no Info")
 @Composable
-fun GreetingPreview() {
+fun InfoPreviewNoInfo() {
     PhoneclientTheme {
-        Greeting("Android")
+        InfoField("")
     }
 }
 
+
+@Preview(showBackground = true, name = "Info with Info")
+@Composable
+fun InfoPreviewWithInfo() {
+    PhoneclientTheme {
+        InfoField(name = "192.168.0.1")
+    }
+}
