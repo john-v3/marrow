@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,7 +33,7 @@ import java.net.URI
 
 class MainActivity : ComponentActivity() {
 
-    lateinit var webSocketClient: WebSocketClient
+    var webSocketClient: WebSocketClient? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,12 @@ class MainActivity : ComponentActivity() {
             PhoneclientTheme {
                 val receivedValue = remember { mutableStateOf("") }
                 val parsedValue = remember { mutableStateOf<URI?>(null) }
+                val webSocketLog = remember { mutableStateListOf(String()) }
+                val messageHandler: (input: String?) -> Unit = {
+                    input: String? ->
+                        if (input != null)
+                            webSocketLog.addLast(input)
+                }
 
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -60,36 +67,37 @@ class MainActivity : ComponentActivity() {
                     if (parsedValue.value != null) {
                         ButtonBeginWebSocketConnection(parsedValue) {
                             uRI ->
-                            val result = beginWebSocketConnection(uRI)
-                            if (result != null)
-                            {
-                                webSocketClient = result
+                            if (webSocketClient != null) {
+                                webSocketClient?.send("init")
+                                return@ButtonBeginWebSocketConnection
                             }
+
+                            val result = beginWebSocketConnection(uRI, messageHandler)
+                            if (result == null) return@ButtonBeginWebSocketConnection
+                            webSocketClient = result
+
+                            // webSocketClient.onWebsocketMessage(webSocketClient, )
+
+                            webSocketLog.addFirst("connected")
                         }
+                        ReceiveField(modifier = Modifier, webSocketLog)
                     }
                 }
             }
         }
-
     }
-
 }
 
 fun tryBuildingURI(iPAddress: String): URI? {
     return URI.create("ws://$iPAddress:8080/echo")
 }
 
-fun beginWebSocketConnection(URI: URI): WebSocketClient? {
-    val test = WebSocketClient(URI)
-
+fun beginWebSocketConnection(uRI: URI, onMessageOverride: (message: String?) -> Unit): WebSocketClient?
+{
+    val test = WebSocketClient(uRI, onMessageOverride)
     test.connectBlocking()
 
-    if (test.isOpen) {
-        test.send("test")
-        return test
-    } else {
-        return null
-    }
+    return if (test.isOpen) test else null
 }
 
 @Composable
@@ -175,6 +183,28 @@ fun InfoField(name: String, modifier: Modifier = Modifier) {
     }
 }
 
+
+// displays an array of string values
+// the oldest one will disappear every 5 seconds
+@Composable
+fun ReceiveField(modifier: Modifier = Modifier, receivedInformation : List<String>) {
+
+    var presenter = ""
+    for (thing in receivedInformation) {
+        presenter += thing + "\n"
+    }
+
+    Text(text = presenter, modifier = modifier)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ReceiveFieldLogPreview(modifier: Modifier = Modifier) {
+    PhoneclientTheme {
+        ReceiveField(modifier, listOf("test", "test2", "test3") )
+    }
+}
+
 @Preview(showBackground = true, name = "Info with no Info")
 @Composable
 fun InfoPreviewNoInfo() {
@@ -191,3 +221,5 @@ fun InfoPreviewWithInfo() {
         InfoField(name = "192.168.0.1")
     }
 }
+
+
