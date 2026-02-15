@@ -76,9 +76,7 @@ class MainActivity : ComponentActivity() {
                             val result = beginWebSocketConnection(uRI, messageHandler)
                             if (result == null) return@ButtonBeginWebSocketConnection
                             webSocketClient = result
-
-                            // webSocketClient.onWebsocketMessage(webSocketClient, )
-
+                            
                             webSocketLog.addFirst("connected")
                         }
                         ButtonFields(modifier = Modifier, receivedbuttons)
@@ -103,6 +101,17 @@ class Event {
 }
 
 
+class InitialDataPackage() :  {
+
+}
+
+class ClientCommandPayload() {
+
+}
+
+class ServerContextChange() {
+
+}
 
 fun tryBuildingURI(iPAddress: String): URI? {
     return URI.create("ws://$iPAddress:8080/echo")
