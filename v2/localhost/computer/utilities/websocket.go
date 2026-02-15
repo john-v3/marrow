@@ -1,6 +1,7 @@
 package utilities
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -10,18 +11,37 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+
+// represents what a button is
 type button struct {
-	Name         string `json:"Name"`
+	ID         string `json:"ID"` 
+	Name         string `json:"Name"` 
 	Category     string `json:"DataType"`
 	CurrentValue string `json:"Value"`
 }
 
+// represents an action from the 
+// phone
 type event struct {
 	Name  string `json:"Name"`
 	Value string `json:"Value"`
 }
 
 var upgrader = websocket.Upgrader{}
+
+func handleInit() []byte {
+	// just a default return object for proving
+
+	payload := []button{
+		{"0", "test", "toggle", "1"},
+		{"1", "test2", "press", "0"},
+		{"2", "test", "press", "0"},
+	}
+
+	byteLoad, _ := json.Marshal(payload)
+
+	return byteLoad
+}
 
 func echo(w http.ResponseWriter, r *http.Request) {
 
@@ -40,7 +60,12 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		log.Printf("recv: %s", message)
-		err = c.WriteMessage(mt, message)
+
+		if string(message) == "init" {
+			err = c.WriteMessage(mt, handleInit())
+		} else {
+			err = c.WriteMessage(mt, message)
+		}
 
 		if err != nil {
 			log.Println("write:", err)
@@ -170,5 +195,3 @@ You can change the message and send multiple times.
 </body>
 </html>
 `))
-
-

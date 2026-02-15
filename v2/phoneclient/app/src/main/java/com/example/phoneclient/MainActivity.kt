@@ -221,5 +221,3 @@ fun InfoPreviewWithInfo() {
         InfoField(name = "192.168.0.1")
     }
 }
-
-
