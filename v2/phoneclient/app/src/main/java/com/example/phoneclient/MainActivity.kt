@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
                 val receivedValue = remember { mutableStateOf("") }
                 val parsedValue = remember { mutableStateOf<URI?>(null) }
                 val webSocketLog = remember { mutableStateListOf(String()) }
+                var receivedbuttons = remember {mutableStateListOf(ButtonInfo())}
                 val messageHandler: (input: String?) -> Unit = {
                     input: String? ->
                         if (input != null)
@@ -80,6 +81,7 @@ class MainActivity : ComponentActivity() {
 
                             webSocketLog.addFirst("connected")
                         }
+                        ButtonFields(modifier = Modifier, receivedbuttons)
                         ReceiveField(modifier = Modifier, webSocketLog)
                     }
                 }
@@ -87,6 +89,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+class ButtonInfo {
+    val ID: String = ""
+    val Name: String = ""
+    val DataType: String = ""
+    val CurrentValue: String = ""
+}
+
+class Event {
+    val Name: String = ""
+    val Value: String = ""
+}
+
+
 
 fun tryBuildingURI(iPAddress: String): URI? {
     return URI.create("ws://$iPAddress:8080/echo")
@@ -141,7 +157,6 @@ fun ButtonBeginWebSocketConnectionPreviewValue() {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun ButtonBeginScanPreview() {
@@ -149,7 +164,6 @@ fun ButtonBeginScanPreview() {
         ButtonBeginScan(modifier = Modifier, {})
     }
 }
-
 
 fun showSnackbar(result: QRResult): String {
 
@@ -183,7 +197,6 @@ fun InfoField(name: String, modifier: Modifier = Modifier) {
     }
 }
 
-
 // displays an array of string values
 // the oldest one will disappear every 5 seconds
 @Composable
@@ -195,6 +208,13 @@ fun ReceiveField(modifier: Modifier = Modifier, receivedInformation : List<Strin
     }
 
     Text(text = presenter, modifier = modifier)
+}
+
+@Composable
+fun ButtonFields(modifier: Modifier = Modifier, ButtonInfoList : List<ButtonInfo>) {
+    for (button in ButtonInfoList) {
+        
+    }
 }
 
 @Preview(showBackground = true)
@@ -212,7 +232,6 @@ fun InfoPreviewNoInfo() {
         InfoField("")
     }
 }
-
 
 @Preview(showBackground = true, name = "Info with Info")
 @Composable
