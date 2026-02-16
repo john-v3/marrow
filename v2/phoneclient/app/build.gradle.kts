@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -52,6 +53,9 @@ dependencies {
     implementation(libs.java.websocket)
     implementation(libs.androidx.appcompat)
     implementation(libs.compose.theme.adapter)
+    implementation(libs.androidx.compose.ui.text)
+    implementation(libs.org.jetbrains.kotlin.plugin.serialization.gradle.plugin)
+    implementation(libs.jetbrains.kotlinx.serialization.json)
     debugImplementation(libs.quickie.unbundled)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

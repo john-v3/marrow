@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.phoneclient.ui.theme.PhoneclientTheme
 import io.github.g00fy2.quickie.QRResult
@@ -28,6 +29,11 @@ import io.github.g00fy2.quickie.QRResult.QRMissingPermission
 import io.github.g00fy2.quickie.QRResult.QRSuccess
 import io.github.g00fy2.quickie.QRResult.QRUserCanceled
 import io.github.g00fy2.quickie.ScanQRCode
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import java.net.URI
 
 
@@ -43,11 +49,20 @@ class MainActivity : ComponentActivity() {
                 val receivedValue = remember { mutableStateOf("") }
                 val parsedValue = remember { mutableStateOf<URI?>(null) }
                 val webSocketLog = remember { mutableStateListOf(String()) }
-                var receivedbuttons = remember {mutableStateListOf(ButtonInfo())}
+                val receivedbuttons = remember {mutableStateListOf(ButtonInfo(null))}
+
                 val messageHandler: (input: String?) -> Unit = {
                     input: String? ->
                         if (input != null)
+                        {
                             webSocketLog.addLast(input)
+                            val test = Json.encodeToString(IncomingButtonInfo())
+                            val received = Json.decodeFromString<List<IncomingButtonInfo>>(input)
+                            receivedbuttons.clear()
+                            for (payload in received)
+                                receivedbuttons.add(payload.ConvertToButtonInfo(webSocketClient))
+
+                        }
                 }
 
                 Column(
@@ -88,20 +103,85 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-class ButtonInfo {
-    val ID: String = ""
-    val Name: String = ""
-    val DataType: String = ""
-    val CurrentValue: String = ""
+@Serializable
+data class IncomingButtonInfo(val ID: String = "",
+                              val Name: String = "",
+                              val DataType: String = "",
+                              val Value: String = "")
+{
+    fun ConvertToButtonInfo(webSocketClient: WebSocketClient?): ButtonInfo {
+        val result = ButtonInfo(webSocketClient, this.ID, this.Name, this.DataType, this.Value)
+        return result
+    }
 }
 
-class Event {
-    val Name: String = ""
-    val Value: String = ""
+class ButtonInfo(val webSocketClient: WebSocketClient? = null,
+                 val ID: String = "",
+                 val Name: String = "",
+                 val DataType: String = "",
+                 val Value: String = "")
+{
+    val localLocale = Locale("en")
+
+    private val onClickEventDefault: () -> Unit = {
+        val output = Event(iD = this.ID, value = this.Value)
+        if (webSocketClient?.isOpen == false) webSocketClient.connectBlocking()
+        val package1 = output.encodeJson()
+        webSocketClient?.send(package1)
+    }
+
+    //    private val onSwitchEventDefault: (Boolean) -> Unit = {
+    //
+    //    }
+
+    enum class ButtonTypes() {
+        Button,
+        Switch
+    }
+
+    @Composable
+    fun GetButtonObject(customOnClick: () -> Unit) {
+        //if (DataType == "Button") {
+        Button(onClick = customOnClick) {
+            Text(
+                text = Name,
+                modifier = Modifier,
+            )
+        }
+        //}
+    }
+
+    @Composable
+    fun GetButtonObject() {
+        //if (DataType == "Button") {
+        Button(onClick = onClickEventDefault) {
+            Text(
+                text = Name,
+                modifier = Modifier,
+            )
+        }
+        //}
+    }
+
+    //    @Composable
+    //    fun GetSwitchObject(CustomOnClick:(Boolean) -> Unit) {
+    //        Text(this.Name)
+    //        Switch(checked = this.CurrentValue.toLowerCase(locale = localLocale) == "true",
+    //            onCheckedChange = CustomOnClick)
+    //    }
+}
+
+@Serializable
+class Event(val iD: String, val value: String) {
+    // json serialization
+    fun encodeJson(): String {
+        val result = Json.encodeToString(this)
+        return result
+    }
 }
 
 
-class InitialDataPackage() :  {
+class InitialDataPackage()  {
 
 }
 
@@ -221,8 +301,9 @@ fun ReceiveField(modifier: Modifier = Modifier, receivedInformation : List<Strin
 
 @Composable
 fun ButtonFields(modifier: Modifier = Modifier, ButtonInfoList : List<ButtonInfo>) {
+    if (ButtonInfoList.isEmpty()) return
     for (button in ButtonInfoList) {
-        
+        button.GetButtonObject()
     }
 }
 

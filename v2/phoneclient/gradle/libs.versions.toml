@@ -17,6 +17,10 @@ appcompat = "1.7.1"
 quickieBundled = "1.11.0"
 composeThemeAdapter = "1.2.1"
 quickieUnbundled = "1.11.0"
+uiText = "1.10.3"
+kotlinxSerializationJson = "1.9.0"
+orgJetbrainsKotlinPluginSerializationGradlePlugin = "2.2.0"
+kotlinxSerializationJsonVersion = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,9 +46,13 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 quickie-bundled = { group = "io.github.g00fy2.quickie", name = "quickie-bundled", version.ref = "quickieBundled" }
 compose-theme-adapter = { group = "com.google.android.material", name = "compose-theme-adapter", version.ref = "composeThemeAdapter" }
 quickie-unbundled = { group = "io.github.g00fy2.quickie", name = "quickie-unbundled", version.ref = "quickieBundled" }
+androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }
+org-jetbrains-kotlin-plugin-serialization-gradle-plugin = { group = "org.jetbrains.kotlin.plugin.serialization", name = "org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "orgJetbrainsKotlinPluginSerializationGradlePlugin" }
+jetbrains-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "orgJetbrainsKotlinPluginSerializationGradlePlugin" }
