@@ -11,16 +11,15 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-
 // represents what a button is
 type button struct {
-	ID         string `json:"ID"` 
-	Name         string `json:"Name"` 
+	ID           string `json:"ID"`
+	Name         string `json:"Name"`
 	Category     string `json:"DataType"`
 	CurrentValue string `json:"Value"`
 }
 
-// represents an action from the 
+// represents an action from the
 // phone
 type event struct {
 	Name  string `json:"Name"`
@@ -33,9 +32,15 @@ func handleInit() []byte {
 	// just a default return object for proving
 
 	payload := []button{
-		{"0", "test", "toggle", "1"},
-		{"1", "test2", "press", "0"},
-		{"2", "test", "press", "0"},
+		{"1", "window 1", "button", "Super+1"},
+		{"2", "window 2", "button", "Super+2"},
+		{"3", "window 3", "button", "Super+3"},
+		{"4", "window 4", "button", "Super+4"},
+		{"5", "window 5", "button", "Super+5"},
+		{"6", "window 6", "button", "Super+6"},
+		{"7", "window 7", "button", "Super+7"},
+		{"8", "window 8", "button", "Super+8"},
+		{"9", "window 9", "button", "Super+9"},
 	}
 
 	byteLoad, _ := json.Marshal(payload)
@@ -65,6 +70,18 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			err = c.WriteMessage(mt, handleInit())
 		} else {
 			err = c.WriteMessage(mt, message)
+
+			commander := x11CommandSuite{}
+
+			var incoming event
+			err := json.Unmarshal(message, &incoming)
+
+			if err != nil {
+				log.Println("could not interpret ", string(message))
+			} else {
+				commander.SendKeyPress(incoming.Value)
+			}
+
 		}
 
 		if err != nil {
