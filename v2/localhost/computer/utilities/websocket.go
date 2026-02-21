@@ -27,20 +27,21 @@ type event struct {
 }
 
 var upgrader = websocket.Upgrader{}
+var winSwitchController = NewWindowSwitcher()
 
 func handleInit() []byte {
 	// just a default return object for proving
 
 	payload := []button{
-		{"1", "window 1", "button", "Super+1"},
-		{"2", "window 2", "button", "Super+2"},
-		{"3", "window 3", "button", "Super+3"},
-		{"4", "window 4", "button", "Super+4"},
-		{"5", "window 5", "button", "Super+5"},
-		{"6", "window 6", "button", "Super+6"},
-		{"7", "window 7", "button", "Super+7"},
-		{"8", "window 8", "button", "Super+8"},
-		{"9", "window 9", "button", "Super+9"},
+		{"1", "window 1", "button", "window1"},
+		{"2", "window 2", "button", "window2"},
+		{"3", "window 3", "button", "window3"},
+		{"4", "window 4", "button", "window4"},
+		{"5", "window 5", "button", "window5"},
+		{"6", "window 6", "button", "window6"},
+		{"7", "window 7", "button", "window7"},
+		{"8", "window 8", "button", "window8"},
+		{"9", "window 9", "button", "window9"},
 	}
 
 	byteLoad, _ := json.Marshal(payload)
@@ -59,27 +60,26 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 
 	for {
-		mt, message, err := c.ReadMessage()
+		mt, messageByte, err := c.ReadMessage()
 		if err != nil {
 			log.Println("read:", err)
 			break
 		}
-		log.Printf("recv: %s", message)
+		log.Printf("recv: %s", messageByte)
 
-		if string(message) == "init" {
+		message := string(messageByte)
+		if message == "init" {
 			err = c.WriteMessage(mt, handleInit())
 		} else {
-			err = c.WriteMessage(mt, message)
-
-			commander := x11CommandSuite{}
+			err = c.WriteMessage(mt, messageByte)
 
 			var incoming event
-			err := json.Unmarshal(message, &incoming)
+			err := json.Unmarshal(messageByte, &incoming)
 
 			if err != nil {
-				log.Println("could not interpret ", string(message))
+				log.Println("could not interpret ", message)
 			} else {
-				commander.SendKeyPress(incoming.Value)
+				winSwitchController.ProcessCommand(message)
 			}
 
 		}
