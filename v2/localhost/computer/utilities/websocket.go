@@ -79,7 +79,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println("could not interpret ", message)
 			} else {
-				winSwitchController.ProcessCommand(message)
+				winSwitchController.ProcessCommand(incoming.Value)
 			}
 
 		}
